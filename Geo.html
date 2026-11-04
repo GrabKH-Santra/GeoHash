@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geohash Explorer Pro - Grab Duxton GIS Suite</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/js/tailwind-config.js"></script>
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body id="app-body" class="dark h-full bg-slate-950 text-slate-100 antialiased flex overflow-hidden">
+
+    <!-- LEFT-SIDE VERTICAL NAVIGATION SIDEBAR -->
+    <aside id="sidebar" class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between z-50 transition-all duration-300 relative shrink-0">
+        <div>
+            <!-- LOGO BRANDING HEADER -->
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-grab flex items-center justify-center text-white font-black text-xl shadow-lg shadow-grab/20">
+                        G
+                    </div>
+                    <div>
+                        <h1 class="font-black text-sm tracking-tight flex items-center gap-1.5">
+                            Geohash <span class="text-grab">Pro</span>
+                        </h1>
+                        <p class="text-[10px] text-slate-400 font-medium">Duxton Spatial Platform</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN MENU ITEMS -->
+            <nav class="p-3 space-y-1.5 text-xs font-semibold">
+                <button onclick="switchNavTab('home')" id="nav-item-home" 
+                        class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-white bg-grab shadow-lg shadow-grab/20">
+                    <i class="fa-solid fa-house w-4 text-center"></i>
+                    <span>Home Overview</span>
+                </button>
+
+                <button onclick="switchNavTab('search')" id="nav-item-search" 
+                        class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i class="fa-solid fa-magnifying-glass-location w-4 text-center"></i>
+                    <span>Geohash Search</span>
+                </button>
+
+                <button onclick="switchNavTab('generator')" id="nav-item-generator" 
+                        class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i class="fa-solid fa-bolt w-4 text-center"></i>
+                    <span>Geohash Generator</span>
+                </button>
+
+                <button onclick="switchNavTab('polygon')" id="nav-item-polygon" 
+                        class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i class="fa-solid fa-draw-polygon w-4 text-center"></i>
+                    <span>Polygon Converter</span>
+                </button>
+
+                <button onclick="switchNavTab('geofence')" id="nav-item-geofence" 
+                        class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i class="fa-solid fa-draw-polygon w-4 text-center"></i>
+                    <span>Geofence Drawing</span>
+                </button>
+
+                <button onclick="switchNavTab('docs')" id="nav-item-docs" 
+                        class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+                    <i class="fa-solid fa-book-bookmark w-4 text-center"></i>
+                    <span>Documentation</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- FOOTER & THEME TOGGLE -->
+        <div class="p-3 border-t border-slate-800 space-y-2">
+            <div class="flex items-center justify-between px-2 py-1 bg-slate-950/60 rounded-xl border border-slate-800 text-xs">
+                <span class="text-[11px] font-medium text-slate-400">Theme Preference</span>
+                <button onclick="toggleAppTheme()" id="theme-btn" class="p-1.5 rounded-lg text-amber-400 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
+            </div>
+            <div class="px-2 text-[10px] text-slate-500 font-mono">Region: Cambodia [12.56, 104.99]</div>
+        </div>
+    </aside>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-slate-950">
+        
+        <!-- ================= SECTION 1: HOME PAGE ================= -->
+        <section id="view-home" class="flex-1 overflow-y-auto p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
+            
+            <!-- HERO BANNER -->
+            <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-slate-900 to-grab/30 border border-slate-800 p-8 lg:p-12 shadow-2xl">
+                <div class="max-w-2xl space-y-4 relative z-10">
+                    <span class="bg-grab/20 text-grab border border-grab/40 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block">
+                        Spatial Indexing Suite
+                    </span>
+                    <h2 class="text-3xl lg:text-5xl font-black tracking-tight text-white leading-tight">
+                        Professional Spatial Analytics with <span class="text-grab">Geohash Pro</span>
+                    </h2>
+                    <p class="text-sm lg:text-base text-slate-300 leading-relaxed">
+                        High-performance geospatial indexing, bounding box lookup, batch coordinate parsing, and polygon intersection calculations tailored for Grab's spatial engineering workflows.
+                    </p>
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button onclick="switchNavTab('search')" class="bg-grab hover:bg-grab-dark text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-grab/30 flex items-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass"></i> Explore Geohashes
+                        </button>
+                        <button onclick="switchNavTab('polygon')" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs border border-slate-700 transition flex items-center gap-2">
+                            <i class="fa-solid fa-draw-polygon"></i> Convert Polygons
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FEATURE CARDS GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                <div onclick="switchNavTab('search')" class="glass-card-dark p-6 rounded-2xl border border-slate-800 hover:border-grab transition cursor-pointer group shadow-xl">
+                    <div class="w-12 h-12 rounded-xl bg-grab/15 text-grab flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-magnifying-glass-location"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-white mb-2">Geohash Search</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                        Search multiple geohash formats, coordinate pairs, or GeoJSON points and polygon boundaries.
+                    </p>
+                    <span class="text-xs font-bold text-grab flex items-center gap-1">Launch Tool <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+
+                <div onclick="switchNavTab('generator')" class="glass-card-dark p-6 rounded-2xl border border-slate-800 hover:border-grab transition cursor-pointer group shadow-xl">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-white mb-2">Geohash Generator</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                        Generate geohashes from coordinate lists, CSV tables, or GeoJSON point and line features with precision control.
+                    </p>
+                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1">Launch Tool <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+
+                <div onclick="switchNavTab('polygon')" class="glass-card-dark p-6 rounded-2xl border border-slate-800 hover:border-grab transition cursor-pointer group shadow-xl">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-draw-polygon"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-white mb-2">Polygon Converter</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                        Convert Polygon and MultiPolygon boundaries into an accurate, adjustable geohash cell cover.
+                    </p>
+                    <span class="text-xs font-bold text-indigo-400 flex items-center gap-1">Launch Tool <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+
+                <div onclick="switchNavTab('geofence')" class="glass-card-dark p-6 rounded-2xl border border-slate-800 hover:border-cyan-400 transition cursor-pointer group shadow-xl">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-draw-polygon"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-white mb-2">Geofence Drawing</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                        Draw and style points, circles, rectangles, lines, and polygons on a map or uploaded image.
+                    </p>
+                    <span class="text-xs font-bold text-cyan-400 flex items-center gap-1">Launch Tool <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- REAL-WORLD APPLICATIONS -->
+            <div class="glass-card-dark p-8 rounded-2xl border border-slate-800 space-y-6">
+                <h3 class="font-black text-lg text-white flex items-center gap-2">
+                    <i class="fa-solid fa-earth-asia text-grab"></i> Real-World Spatial Indexing Applications
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+                    <div class="space-y-2 border-l-2 border-grab pl-4">
+                        <h4 class="font-bold text-sm text-white">Geofencing & Proximity Queries</h4>
+                        <p class="text-slate-400 leading-relaxed">
+                            Geohashes reduce complex 2D spatial distance calculations to simple string prefix matching, drastically speeding up nearby driver matching.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2 border-l-2 border-amber-400 pl-4">
+                        <h4 class="font-bold text-sm text-white">Heatmaps & Demand Aggregation</h4>
+                        <p class="text-slate-400 leading-relaxed">
+                            Group order origins into fixed geohash buckets to build dynamic real-time surge pricing and driver allocation heatmaps.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2 border-l-2 border-indigo-400 pl-4">
+                        <h4 class="font-bold text-sm text-white">Spatial Sharding & Indexing</h4>
+                        <p class="text-slate-400 leading-relaxed">
+                            Use geohashes as primary partition keys in distributed databases like Redis, Cassandra, or PostGIS for instant spatial queries.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= SECTION 2: GEOHASH SEARCH ================= -->
+        <section id="view-search" class="hidden flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+            
+            <!-- SEARCH CONTROLS DRAWER -->
+            <div class="w-full lg:w-96 p-5 bg-slate-900 border-r border-slate-800 overflow-y-auto space-y-5 shrink-0">
+                <div>
+                    <h3 class="font-black text-base text-white flex items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass-location text-grab"></i> Geohash Search
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Search geohashes, coordinate pairs, or GeoJSON points and boundaries.</p>
+                </div>
+
+                <!-- INPUT TYPE SWITCHER -->
+                <div class="space-y-3">
+                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Query Input Mode</label>
+                    
+                    <div class="space-y-2">
+                        <label for="search-geohash-input" class="block text-[11px] font-semibold text-slate-300">Geohashes or coordinate pairs</label>
+                        <textarea id="search-geohash-input" rows="3" placeholder="Geohashes: w3gv8, w3e2u&#10;Coordinates: 11.5564, 104.9282" 
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono font-bold text-grab focus:outline-none focus:border-grab">w3gv8</textarea>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" step="any" id="search-lat-input" aria-label="Latitude" placeholder="Lat (12.5657)" 
+                                   class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-grab" />
+                            <input type="number" step="any" id="search-lng-input" aria-label="Longitude" placeholder="Lng (104.9910)" 
+                                   class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-grab" />
+                        </div>
+                        <div class="space-y-1">
+                            <label for="search-file-input" class="block text-[11px] font-semibold text-slate-300">Search a GeoJSON file</label>
+                            <input type="file" id="search-file-input" accept=".json,.geojson,application/geo+json,application/json" onchange="handleSearchGeoJSONUpload(event)" class="block w-full text-[11px] text-slate-400 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-[11px] file:font-bold file:text-white hover:file:bg-slate-700" />
+                            <p class="text-[10px] text-slate-500">Supports Point, MultiPoint, LineString, Polygon, and MultiPolygon features.</p>
+                        </div>
+                        <div>
+                            <label for="search-geojson-precision" class="block text-[11px] font-semibold text-slate-300 mb-1">GeoJSON cell precision</label>
+                            <select id="search-geojson-precision" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-xs font-mono text-grab focus:outline-none focus:border-grab">
+                                <option value="4">4 — broad areas</option>
+                                <option value="5">5</option>
+                                <option value="6" selected>6 — balanced</option>
+                                <option value="7">7</option>
+                                <option value="8">8 — small cells</option>
+                            </select>
+                        </div>
+                        <p id="search-status" role="status" aria-live="polite" class="text-[11px] text-slate-400"></p>
+                    </div>
+
+                    <button onclick="executeGeohashSearch()" class="w-full bg-grab hover:bg-grab-dark text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-grab/20 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-search"></i> Execute Search & Render
+                    </button>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Edit Geohash Grid</label>
+                        <p id="search-edit-status" role="status" aria-live="polite" class="text-[11px] text-slate-400 mt-1">
+                            Choose an edit action to change the displayed grid.
+                        </p>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="search-add-precision" class="block text-[11px] font-semibold text-slate-300">New cell size (geohash precision)</label>
+                        <select id="search-add-precision" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs font-mono text-grab focus:outline-none focus:border-grab">
+                            <option value="1">1 character — largest cells</option>
+                            <option value="2">2 characters</option>
+                            <option value="3">3 characters</option>
+                            <option value="4">4 characters</option>
+                            <option value="5">5 characters</option>
+                            <option value="6" selected>6 characters</option>
+                            <option value="7">7 characters</option>
+                            <option value="8">8 characters</option>
+                            <option value="9">9 characters</option>
+                            <option value="10">10 characters</option>
+                            <option value="11">11 characters</option>
+                            <option value="12">12 characters — smallest cells</option>
+                        </select>
+                        <button id="search-add-grid-btn" type="button" aria-pressed="false" onclick="setSearchEditMode('add')" class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold py-2 rounded-lg text-[11px] transition">
+                            <i class="fa-solid fa-table-cells-large mr-1"></i> Add Grid Cells
+                        </button>
+                        <button id="search-delete-grid-btn" type="button" aria-pressed="false" onclick="setSearchEditMode('delete')" class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold py-2 rounded-lg text-[11px] transition">
+                            <i class="fa-solid fa-trash mr-1"></i> Delete Cell
+                        </button>
+                    </div>
+                    <button id="search-finish-edit-btn" type="button" onclick="setSearchEditMode(null)" class="hidden w-full text-slate-300 hover:text-white border border-slate-700 hover:bg-slate-800 font-bold py-2 rounded-lg text-[11px] transition">
+                        Done Editing
+                    </button>
+                </div>
+
+                <!-- CAMBODIA PRESETS -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Cambodia Presets</label>
+                    <label for="search-province-select" class="block text-[11px] font-semibold text-slate-300">Find a province or municipality</label>
+                    <select id="search-province-select" onchange="applyCambodiaProvince(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-grab focus:outline-none focus:border-grab">
+                        <option value="">Select a province...</option>
+                        <option value="banteay-meanchey">Banteay Meanchey</option>
+                        <option value="battambang">Battambang</option>
+                        <option value="kampong-cham">Kampong Cham</option>
+                        <option value="kampong-chhnang">Kampong Chhnang</option>
+                        <option value="kampong-speu">Kampong Speu</option>
+                        <option value="kampong-thom">Kampong Thom</option>
+                        <option value="kampot">Kampot</option>
+                        <option value="kandal">Kandal</option>
+                        <option value="kep">Kep</option>
+                        <option value="koh-kong">Koh Kong</option>
+                        <option value="kratie">Kratie</option>
+                        <option value="mondulkiri">Mondulkiri</option>
+                        <option value="phnom-penh">Phnom Penh</option>
+                        <option value="preah-vihear">Preah Vihear</option>
+                        <option value="prey-veng">Prey Veng</option>
+                        <option value="pursat">Pursat</option>
+                        <option value="ratanakiri">Ratanakiri</option>
+                        <option value="siem-reap">Siem Reap</option>
+                        <option value="preah-sihanouk">Preah Sihanouk</option>
+                        <option value="stung-treng">Stung Treng</option>
+                        <option value="svay-rieng">Svay Rieng</option>
+                        <option value="takeo">Takeo</option>
+                        <option value="oddar-meanchey">Oddar Meanchey</option>
+                        <option value="pailin">Pailin</option>
+                        <option value="tboung-khmum">Tboung Khmum</option>
+                    </select>
+                    <p class="text-[10px] text-slate-500">Shows the geohash cell at the provincial capital or municipality center.</p>
+                </div>
+
+                <!-- RESULTS DATA CARD -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-bold text-slate-400">Search Results Data</span>
+                        <span id="search-count-badge" class="font-mono font-bold text-grab">1 Geohash</span>
+                    </div>
+
+                    <div id="search-details-container" class="text-xs font-mono space-y-1.5 text-slate-300 max-h-40 overflow-y-auto">
+                        <!-- Injected via JavaScript -->
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button onclick="exportSearchGeoJSON()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-1.5 rounded-lg text-[11px] border border-slate-700 transition">
+                            GeoJSON Export
+                        </button>
+                        <button onclick="exportSearchCSV()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-1.5 rounded-lg text-[11px] border border-slate-700 transition">
+                            CSV Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAP DISPLAY CANVAS -->
+            <div class="flex-1 relative h-full">
+                <div class="absolute top-4 left-4 z-[1000]">
+                    <select class="map-tile-switcher bg-slate-900/95 border border-slate-700 rounded-lg px-2.5 py-2 text-xs font-bold text-grab shadow-lg focus:outline-none focus:border-grab" onchange="changeMapTileLayer(this.value)" aria-label="Map background">
+                        <option value="dark">Background: Carto Dark</option>
+                        <option value="satellite">Background: Satellite</option>
+                        <option value="light">Background: Carto Light</option>
+                        <option value="street">Background: OpenStreetMap</option>
+                    </select>
+                </div>
+                <div id="search-map" class="w-full h-full"></div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 3: GEOHASH GENERATOR ================= -->
+        <section id="view-generator" class="hidden flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+            
+            <!-- GENERATOR CONTROLS DRAWER -->
+            <div class="w-full lg:w-96 p-5 bg-slate-900 border-r border-slate-800 overflow-y-auto space-y-5 shrink-0">
+                <div>
+                    <h3 class="font-black text-base text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-amber-400"></i> Geohash Generator
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Generate geohashes from pasted coordinates, CSV, or GeoJSON point and line features.</p>
+                </div>
+
+                <!-- PRECISION SLIDER CONTROL -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between text-xs font-bold">
+                        <label for="precision-slider" class="text-slate-300">Precision Length:</label>
+                        <span id="slider-precision-val" class="text-grab font-mono text-sm">7 Characters</span>
+                    </div>
+                    <input type="range" id="precision-slider" min="1" max="12" value="7" oninput="updatePrecisionSlider(this.value)" class="w-full" />
+                    <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                        <span>1 (±5000km)</span>
+                        <span>7 (±0.076km)</span>
+                        <span>12 (±3.7cm)</span>
+                    </div>
+                </div>
+
+                <!-- BATCH INPUT TEXTAREA -->
+                <div class="space-y-2">
+                    <label for="gen-coords-input" class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Coordinates or CSV rows</label>
+                    <textarea id="gen-coords-input" rows="5" placeholder="11.5564, 104.9282&#10;13.3671, 103.8448&#10;10.6259, 103.5234" 
+                              class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-grab"></textarea>
+                    <p class="text-[10px] text-slate-500">Use latitude, longitude pairs, one per line. CSV headers such as lat/lon are supported.</p>
+                </div>
+
+                <!-- CSV FILE UPLOAD -->
+                <div class="space-y-2">
+                    <label for="gen-file-input" class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Upload coordinates</label>
+                    <input type="file" id="gen-file-input" accept=".csv,.json,.geojson,text/csv,application/geo+json,application/json" onchange="handleGenCSVUpload(event)" class="block w-full text-[11px] text-slate-400 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-[11px] file:font-bold file:text-white hover:file:bg-slate-700" />
+                </div>
+
+                <p id="gen-status" role="status" aria-live="polite" class="text-[11px] text-slate-400"></p>
+                <button onclick="generateBatchGeohashes()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Process Geohashes
+                </button>
+
+                <!-- RESULTS LIST -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-bold text-slate-400">Generated Results</span>
+                        <span id="gen-count-badge" class="font-mono text-amber-400">0 Items</span>
+                    </div>
+                    <div id="gen-results-list" class="text-xs font-mono space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                        <!-- Injected via JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAP DISPLAY CANVAS -->
+            <div class="flex-1 relative h-full">
+                <div class="absolute top-4 left-4 z-[1000]">
+                    <select class="map-tile-switcher bg-slate-900/95 border border-slate-700 rounded-lg px-2.5 py-2 text-xs font-bold text-grab shadow-lg focus:outline-none focus:border-grab" onchange="changeMapTileLayer(this.value)" aria-label="Map background">
+                        <option value="dark">Background: Carto Dark</option>
+                        <option value="satellite">Background: Satellite</option>
+                        <option value="light">Background: Carto Light</option>
+                        <option value="street">Background: OpenStreetMap</option>
+                    </select>
+                </div>
+                <div id="gen-map" class="w-full h-full"></div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 4: POLYGON CONVERTER ================= -->
+        <section id="view-polygon" class="hidden flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+            
+            <!-- POLYGON CONTROLS DRAWER -->
+            <div class="w-full lg:w-96 p-5 bg-slate-900 border-r border-slate-800 overflow-y-auto space-y-5 shrink-0">
+                <div>
+                    <h3 class="font-black text-base text-white flex items-center gap-2">
+                        <i class="fa-solid fa-draw-polygon text-indigo-400"></i> Polygon Converter
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Create an accurate geohash cover for uploaded polygon boundaries.</p>
+                </div>
+
+                <!-- FILE UPLOAD DROPZONE -->
+                <div class="space-y-3">
+                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Upload Boundary File</label>
+                    
+                    <input type="file" id="poly-file-input" accept=".json,.geojson,.csv" onchange="handlePolyFileUpload(event)" class="hidden" />
+                    
+                    <button type="button" onclick="document.getElementById('poly-file-input').click()" aria-label="Choose a GeoJSON or CSV boundary file"
+                         class="w-full border-2 border-dashed border-slate-700 hover:border-indigo-400 focus:border-indigo-400 bg-slate-950/60 p-6 rounded-2xl text-center cursor-pointer transition space-y-2">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-indigo-400"></i>
+                        <div class="text-xs font-bold text-white">Click to upload GeoJSON or CSV</div>
+                        <p class="text-[10px] text-slate-400">Supports Polygon/MultiPolygon GeoJSON and CSV coordinate rings.</p>
+                    </button>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <label for="poly-precision" class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Geohash precision</label>
+                    <select id="poly-precision" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs font-mono text-indigo-300 focus:outline-none focus:border-indigo-400">
+                        <option value="4">4 — broad coverage</option>
+                        <option value="5">5 — neighborhood</option>
+                        <option value="6" selected>6 — balanced</option>
+                        <option value="7">7 — detailed</option>
+                        <option value="8">8 — very detailed</option>
+                    </select>
+                    <p class="text-[10px] text-slate-500">Higher precision creates more cells and can take longer.</p>
+                </div>
+                <p id="poly-status" role="status" aria-live="polite" class="text-[11px] text-slate-400"></p>
+
+                <!-- PRESET DEMO BOUNDS -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Load Demo Boundary</label>
+                    <button onclick="loadDemoCambodiaPolygon()" class="w-full bg-slate-950 border border-slate-800 hover:border-indigo-400 p-2.5 rounded-xl text-left transition flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-bold text-white">Cambodia National Polygon</div>
+                            <div class="text-[10px] text-slate-400 font-mono">Bounding PIP Grid</div>
+                        </div>
+                        <i class="fa-solid fa-arrow-right text-indigo-400"></i>
+                    </button>
+                </div>
+
+                <!-- CONVERSION RESULTS -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-bold text-slate-400">Intersecting Geohashes</span>
+                        <span id="poly-count-badge" class="font-mono font-bold text-indigo-400">0 Grid Cells</span>
+                    </div>
+
+                    <div id="poly-results-container" class="text-xs font-mono space-y-1.5 max-h-40 overflow-y-auto text-slate-300">
+                        <!-- Injected via JavaScript -->
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button onclick="exportPolyGeoJSON()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-1.5 rounded-lg text-[11px] border border-slate-700 transition">
+                            GeoJSON Export
+                        </button>
+                        <button onclick="exportPolyCSV()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-1.5 rounded-lg text-[11px] border border-slate-700 transition">
+                            CSV Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAP DISPLAY CANVAS -->
+            <div class="flex-1 relative h-full">
+                <div class="absolute top-4 left-4 z-[1000]">
+                    <select class="map-tile-switcher bg-slate-900/95 border border-slate-700 rounded-lg px-2.5 py-2 text-xs font-bold text-grab shadow-lg focus:outline-none focus:border-grab" onchange="changeMapTileLayer(this.value)" aria-label="Map background">
+                        <option value="dark">Background: Carto Dark</option>
+                        <option value="satellite">Background: Satellite</option>
+                        <option value="light">Background: Carto Light</option>
+                        <option value="street">Background: OpenStreetMap</option>
+                    </select>
+                </div>
+                <div id="poly-map" class="w-full h-full"></div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 5: GEOFENCE DRAWING ================= -->
+        <section id="view-geofence" class="hidden flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+            <div class="w-full lg:w-96 p-5 bg-slate-900 border-r border-slate-800 overflow-y-auto space-y-4 shrink-0">
+                <div>
+                    <h3 class="font-black text-base text-white flex items-center gap-2">
+                        <i class="fa-solid fa-draw-polygon text-cyan-400"></i> Geofence Drawing
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Draw and style geofences on a map or uploaded image.</p>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Find a location</h4>
+                    <label for="fence-poi-id" class="block text-[11px] font-semibold text-slate-300">POI ID (manual lookup)</label>
+                    <input id="fence-poi-id" type="text" placeholder="Enter your POI identifier" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400" />
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label for="fence-lat" class="block text-[11px] font-semibold text-slate-300 mb-1">Latitude</label>
+                            <input id="fence-lat" type="number" step="any" placeholder="12.5657" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-cyan-400" />
+                        </div>
+                        <div>
+                            <label for="fence-lng" class="block text-[11px] font-semibold text-slate-300 mb-1">Longitude</label>
+                            <input id="fence-lng" type="number" step="any" placeholder="104.9910" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-cyan-400" />
+                        </div>
+                    </div>
+                    <button type="button" onclick="locateFencePOI()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-lg text-xs transition">
+                        <i class="fa-solid fa-location-crosshairs mr-1"></i> Locate POI / Coordinates
+                    </button>
+                    <button type="button" onclick="addFencePOIPoint()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold py-2 rounded-lg text-[11px] transition">
+                        <i class="fa-solid fa-plus mr-1"></i> Add POI as a point fence
+                    </button>
+                    <p class="text-[10px] text-slate-500">POI IDs are labels; enter coordinates from your POI source to locate them. This app has no POI lookup service.</p>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Drawing surface</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="setFenceSurface('map')" id="fence-map-mode-btn" aria-pressed="true" class="bg-cyan-600 text-white border border-cyan-500 font-bold py-2 rounded-lg text-[11px] transition">Map</button>
+                        <button type="button" onclick="setFenceSurface('image')" id="fence-image-mode-btn" aria-pressed="false" class="bg-slate-800 text-slate-300 border border-slate-700 font-bold py-2 rounded-lg text-[11px] transition">Image</button>
+                    </div>
+                    <label for="fence-image-file" class="block text-[11px] font-semibold text-slate-300">Background image</label>
+                    <input type="file" id="fence-image-file" accept="image/*" onchange="handleFenceImageUpload(event)" class="block w-full text-[11px] text-slate-400 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-[11px] file:font-bold file:text-white hover:file:bg-slate-700" />
+                    <p id="fence-image-name" class="text-[10px] text-slate-500">Upload an image to draw using image pixel coordinates.</p>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Draw a shape</h4>
+                    <p class="text-[10px] text-slate-500">Straight, horizontal, and vertical lines use two clicks. Polyline and polygon use as many vertices as you need.</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="startFenceDrawing('marker')" class="fence-draw-btn bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-solid fa-location-dot mr-1"></i> Point</button>
+                        <button type="button" onclick="startFenceDrawing('circle')" class="fence-draw-btn bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-regular fa-circle mr-1"></i> Circle</button>
+                        <button type="button" onclick="startFenceDrawing('rectangle')" class="fence-draw-btn bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-regular fa-square mr-1"></i> Rectangle</button>
+                        <button type="button" onclick="startFenceDrawing('square')" class="fence-draw-btn bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-solid fa-vector-square mr-1"></i> Square</button>
+                        <button type="button" onclick="startFenceDrawing('ellipse')" class="fence-draw-btn bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-regular fa-circle mr-1"></i> Ellipse</button>
+                        <button type="button" onclick="startFenceDrawing('triangle')" class="fence-draw-btn bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-solid fa-play mr-1"></i> Triangle</button>
+                        <button type="button" onclick="startFenceDrawing('regular-polygon')" class="fence-draw-btn bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-solid fa-hexagon mr-1"></i> Regular polygon</button>
+                        <button type="button" onclick="startFenceDrawing('segment')" class="fence-draw-btn bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-solid fa-minus mr-1"></i> Line segment</button>
+                        <button type="button" onclick="startFenceDrawing('horizontal-line')" class="fence-draw-btn bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-solid fa-left-right mr-1"></i> Horizontal</button>
+                        <button type="button" onclick="startFenceDrawing('vertical-line')" class="fence-draw-btn bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-solid fa-up-down mr-1"></i> Vertical</button>
+                        <button type="button" onclick="startFenceDrawing('polyline')" class="fence-draw-btn bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-solid fa-bezier-curve mr-1"></i> Polyline</button>
+                        <button type="button" onclick="startFenceDrawing('freehand-line')" class="fence-draw-btn col-span-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-solid fa-pencil mr-1"></i> Freehand line (drag)</button>
+                        <button type="button" onclick="startFenceDrawing('polygon')" class="fence-draw-btn col-span-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold"><i class="fa-solid fa-draw-polygon mr-1"></i> Polygon</button>
+                    </div>
+                    <p id="fence-draw-help" role="status" aria-live="polite" class="text-[10px] text-slate-400">Choose a shape, then click on the active surface. Finish lines and polygons with the button below.</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="finishFenceDrawing()" id="fence-finish-btn" disabled class="bg-cyan-700 disabled:opacity-40 text-white rounded-lg py-2 text-[10px] font-bold">Finish</button>
+                        <button type="button" onclick="undoFenceVertex()" id="fence-undo-btn" disabled class="bg-slate-800 disabled:opacity-40 border border-slate-700 text-white rounded-lg py-2 text-[10px] font-bold">Undo point</button>
+                        <button type="button" onclick="cancelFenceDrawing()" class="bg-slate-800 border border-slate-700 text-white rounded-lg py-2 text-[10px] font-bold">Cancel</button>
+                    </div>
+                    <label for="fence-polygon-sides" class="block text-[11px] font-semibold text-slate-300">Regular polygon sides (3–12)</label>
+                    <input id="fence-polygon-sides" type="number" min="3" max="12" step="1" value="6" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-cyan-400" />
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Edit selected shape</h4>
+                    <button type="button" onclick="toggleFenceVertexEdit()" id="fence-edit-vertices-btn" disabled aria-pressed="false" class="w-full bg-slate-800 disabled:opacity-40 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold">
+                        <i class="fa-solid fa-up-down-left-right mr-1"></i> Edit vertices
+                    </button>
+                    <p class="text-[10px] text-slate-500">Select a fence, enable vertex editing, then drag its handles. Circle radius can be adjusted with the control below.</p>
+                    <label for="fence-circle-radius" class="block text-[11px] font-semibold text-slate-300">Circle radius (meters / image units)</label>
+                    <input id="fence-circle-radius" type="number" min="1" step="any" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-cyan-400" />
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Style selected shape</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="fence-stroke-color" class="block text-[11px] font-semibold text-slate-300 mb-1">Line color</label>
+                            <input id="fence-stroke-color" type="color" value="#06b6d4" class="w-full h-9 bg-slate-900 border border-slate-700 rounded-lg p-1" />
+                        </div>
+                        <div>
+                            <label for="fence-fill-color" class="block text-[11px] font-semibold text-slate-300 mb-1">Fill color</label>
+                            <input id="fence-fill-color" type="color" value="#06b6d4" class="w-full h-9 bg-slate-900 border border-slate-700 rounded-lg p-1" />
+                        </div>
+                    </div>
+                    <label for="fence-opacity" class="block text-[11px] font-semibold text-slate-300">Fill opacity <span id="fence-opacity-value">20%</span></label>
+                    <input id="fence-opacity" type="range" min="0" max="100" value="20" oninput="document.getElementById('fence-opacity-value').textContent = `${this.value}%`" class="w-full" />
+                    <label for="fence-stroke-width" class="block text-[11px] font-semibold text-slate-300">Line width (1–10)</label>
+                    <input id="fence-stroke-width" type="number" min="1" max="10" value="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400" />
+                    <label for="fence-line-pattern" class="block text-[11px] font-semibold text-slate-300">Line pattern</label>
+                    <select id="fence-line-pattern" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400">
+                        <option value="solid">Solid</option>
+                        <option value="dashed">Dashed</option>
+                        <option value="dotted">Dotted</option>
+                    </select>
+                    <button type="button" onclick="applyFenceStyle()" id="fence-apply-style-btn" disabled class="w-full bg-slate-800 disabled:opacity-40 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[11px] font-bold">Apply style to selected</button>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <div class="flex justify-between items-center text-xs">
+                        <h4 class="font-bold text-slate-300 uppercase tracking-wider">Geofences</h4>
+                        <span id="fence-count" class="font-mono font-bold text-cyan-400">0</span>
+                    </div>
+                    <div id="fence-list" class="space-y-1.5 max-h-40 overflow-y-auto text-xs"></div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="exportFences()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-lg py-2 text-[10px] font-bold">Export</button>
+                        <button type="button" onclick="clearFences()" class="bg-rose-950 hover:bg-rose-900 border border-rose-900 text-rose-200 rounded-lg py-2 text-[10px] font-bold">Clear all</button>
+                    </div>
+                </div>
+                <p id="fence-status" role="status" aria-live="polite" class="text-[11px] text-slate-400"></p>
+            </div>
+
+            <div id="fence-map-stage" class="flex-1 relative h-full">
+                <div class="absolute top-4 left-4 z-[1000]">
+                    <select class="map-tile-switcher bg-slate-900/95 border border-slate-700 rounded-lg px-2.5 py-2 text-xs font-bold text-grab shadow-lg focus:outline-none focus:border-grab" onchange="changeMapTileLayer(this.value)" aria-label="Map background">
+                        <option value="dark">Background: Carto Dark</option>
+                        <option value="satellite">Background: Satellite</option>
+                        <option value="light">Background: Carto Light</option>
+                        <option value="street">Background: OpenStreetMap</option>
+                    </select>
+                </div>
+                <div id="fence-map" class="w-full h-full"></div>
+            </div>
+            <div id="fence-image-stage" class="hidden flex-1 relative h-full bg-slate-950">
+                <div id="fence-image-map" class="w-full h-full"></div>
+                <div id="fence-image-placeholder" class="absolute inset-0 flex items-center justify-center p-8 text-center pointer-events-none">
+                    <div class="max-w-sm text-slate-400">
+                        <i class="fa-regular fa-image text-4xl text-cyan-400 mb-3"></i>
+                        <p class="text-sm font-bold text-white">Upload an image to start drawing</p>
+                        <p class="text-xs mt-1">Drawings on images use image-relative coordinates, not latitude/longitude.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 6: DOCUMENTATION ================= -->
+        <section id="view-docs" class="hidden flex-1 overflow-y-auto p-6 lg:p-10 space-y-8 max-w-7xl mx-auto w-full">
+            <div>
+                <span class="bg-grab/20 text-grab border border-grab/40 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-2">
+                    Developer Reference
+                </span>
+                <h2 class="text-3xl font-black text-white">Geohash Technical Specification & Reference</h2>
+                <p class="text-xs text-slate-400 mt-1">Accuracy dimensions, algorithms, and code examples across languages.</p>
+            </div>
+
+            <!-- PRECISION REFERENCE TABLE -->
+            <div class="glass-card-dark rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+                <div class="p-4 border-b border-slate-800 font-bold text-xs uppercase tracking-wider text-grab">
+                    Geohash Precision Reference Table
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900 font-mono text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="p-3">Length</th>
+                                <th class="p-3">Cell Width</th>
+                                <th class="p-3">Cell Height</th>
+                                <th class="p-3">Error Range</th>
+                                <th class="p-3">Target Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800 font-mono text-slate-300">
+                            <tr><td class="p-3 font-bold text-grab">1</td><td class="p-3">5,000 km</td><td class="p-3">5,000 km</td><td class="p-3">±2,500 km</td><td class="p-3 font-sans text-slate-400">Continental overview</td></tr>
+                            <tr><td class="p-3 font-bold text-grab">2</td><td class="p-3">1,250 km</td><td class="p-3">625 km</td><td class="p-3">±625 km</td><td class="p-3 font-sans text-slate-400">Country scale</td></tr>
+                            <tr><td class="p-3 font-bold text-grab">3</td><td class="p-3">156 km</td><td class="p-3">156 km</td><td class="p-3">±78 km</td><td class="p-3 font-sans text-slate-400">Province / State level</td></tr>
+                            <tr><td class="p-3 font-bold text-grab">4</td><td class="p-3">39.1 km</td><td class="p-3">19.5 km</td><td class="p-3">±19.5 km</td><td class="p-3 font-sans text-slate-400">Metropolitan region</td></tr>
+                            <tr><td class="p-3 font-bold text-grab">5</td><td class="p-3">4.89 km</td><td class="p-3">4.89 km</td><td class="p-3">±2.4 km</td><td class="p-3 font-sans text-slate-400">District / City zone</td></tr>
+                            <tr><td class="p-3 font-bold text-grab">6</td><td class="p-3">1.22 km</td><td class="p-3">0.61 km</td><td class="p-3">±0.61 km</td><td class="p-3 font-sans text-slate-400">Neighborhood / Surge zone</td></tr>
+                            <tr><td class="p-3 font-bold text-grab">7</td><td class="p-3">153 m</td><td class="p-3">153 m</td><td class="p-3">±76 m</td><td class="p-3 font-sans text-slate-400">Street block matching</td></tr>
+                            <tr><td class="p-3 font-bold text-grab">8</td><td class="p-3">38.2 m</td><td class="p-3">19.1 m</td><td class="p-3">±19 m</td><td class="p-3 font-sans text-slate-400">Building / Pinpoint location</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CODE IMPLEMENTATION EXAMPLES -->
+            <div class="space-y-4">
+                <h3 class="font-bold text-sm text-white uppercase tracking-wider">Multi-Language Implementations</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- JavaScript -->
+                    <div class="glass-card-dark p-4 rounded-xl border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs font-bold text-grab">
+                            <span>JavaScript (ES6)</span>
+                            <i class="fa-brands fa-js"></i>
+                        </div>
+                        <pre class="bg-slate-950 p-3 rounded-lg text-[11px] font-mono text-slate-300 overflow-x-auto">
+                            <code>
+                                function encode(lat, lon, precision = 7) {
+                                let isEven = true, bit = 0, ch = 0, geohash = "";
+                                let lats = [-90, 90], lons = [-180, 180];
+                                const BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz";
+                                // Interleave bits...}
+                            </code>
+                        </pre>
+                    </div>
+
+                    <!-- Python -->
+                    <div class="glass-card-dark p-4 rounded-xl border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs font-bold text-amber-400">
+                            <span>Python 3</span>
+                            <i class="fa-brands fa-python"></i>
+                        </div>
+                        <pre class="bg-slate-950 p-3 rounded-lg text-[11px] font-mono text-slate-300 overflow-x-auto">
+                            <code>import geohash
+                                # Encode coordinate to geohash
+                                gh = geohash.encode(11.5564, 104.9282, precision=7)
+                                # Decode geohash string
+                                lat, lon = geohash.decode('w3gv8')
+                            </code>
+                        </pre>
+                    </div>
+
+                    <!-- Java -->
+                    <div class="glass-card-dark p-4 rounded-xl border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs font-bold text-indigo-400">
+                            <span>Java (Spatial)</span>
+                            <i class="fa-brands fa-java"></i>
+                        </div>
+                        <pre class="bg-slate-950 p-3 rounded-lg text-[11px] font-mono text-slate-300 overflow-x-auto">
+                            <code>GeoHash gh = GeoHash.withCharacterPrecision(
+                                    11.5564, 104.9282, 7
+                                );
+                                String hash = gh.toBase32();
+                            </code>
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JAVASCRIPT CORE ALGORITHMS AND APP LOGIC -->
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
